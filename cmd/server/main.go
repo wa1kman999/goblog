@@ -75,7 +75,6 @@ func init() {
 	if global.GBMysql != nil {
 		// 迁移表
 		initialize.RegisterTables(global.GBMysql)
-		fmt.Println("迁移表成功")
 	}
 
 	// 初始化redis

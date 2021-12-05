@@ -9,12 +9,18 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/wa1kman999/goblog/global"
+	"github.com/wa1kman999/goblog/internal/http/middleware"
 )
 
 var httpServer *http.Server
 
 func router() http.Handler {
 	r := gin.New()
+	// 跨域中间件
+	r.Use(middleware.Cors())
+	// 请求日志
+	r.Use(middleware.DefaultLogger())
+
 	err := initRouter(r)
 	if err != nil {
 		log.Fatal("initialize router", err)

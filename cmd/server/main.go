@@ -50,6 +50,9 @@ func main() {
 
 // shutdown 关闭服务
 func shutdown() error {
+	// 关闭数据库
+	db, _ := global.GBMysql.DB()
+	_ = db.Close()
 	// 关闭http服务
 	if err := httpServer.Shutdown(); err != nil {
 		return err
@@ -68,6 +71,12 @@ func init() {
 	global.GBLog.Info(fmt.Sprintf("redis %s %s %d ", global.GBConfig.Redis.Addr, global.GBConfig.Redis.Password, global.GBConfig.Redis.DB))
 
 	// 初始化mysql连接
+	global.GBMysql = initialize.GormMysql()
+	if global.GBMysql != nil {
+		// 迁移表
+		initialize.RegisterTables(global.GBMysql)
+		fmt.Println("迁移表成功")
+	}
 
 	// 初始化redis
 	if err := initialize.RedisClient(); err != nil {

@@ -38,13 +38,13 @@ system:
 # mysql connect configuration
 # 未初始化之前请勿手动修改数据库信息！！！如果一定要手动初始化请看（https://www.github.com/flipped-aurora/gin-vue-admin/server.com/docs/first）
 mysql:
-  path: ''
-  port: ''
+  path: '127.0.0.1'
+  port: '3306'
   config: ''
-  db-name: ''
-  username: ''
-  password: ''
+  db-name: 'goblog'
+  username: 'root'
+  password: 'root'
   max-idle-conns: 10
   max-open-conns: 100
-  log-mode: ""
+  log-mode: "Silent"
   log-zap: false

@@ -1,12 +1,15 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"github.com/wa1kman999/goblog/config"
+	"github.com/wa1kman999/goblog/initialize"
 	httpServer "github.com/wa1kman999/goblog/internal/http"
 	"golang.org/x/sync/errgroup"
 )
@@ -52,4 +55,16 @@ func shutdown() error {
 		return err
 	}
 	return nil
+}
+
+func init() {
+	_ = config.Init()
+	conf := config.Get()
+
+	log.Println(fmt.Sprintf("redis %s %s %d ", conf.Redis.Addr, conf.Redis.Password, conf.Redis.DB))
+
+	// 初始化mysql连接
+
+	// 初始化redis
+	initialize.RedisClient()
 }

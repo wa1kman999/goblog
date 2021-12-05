@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/wa1kman999/goblog/config"
 )
 
 var httpServer *http.Server
@@ -16,7 +17,7 @@ func router() http.Handler {
 	r := gin.New()
 	err := initRouter(r)
 	if err != nil {
-		log.Fatal("init router", err)
+		log.Fatal("initialize router", err)
 		return r
 	}
 
@@ -28,12 +29,9 @@ func router() http.Handler {
 
 // Serve 启动服务
 func Serve() error {
-	// TODO 读取配置文件
-
-	//log.Println("正在启动http服务，监听端口", conf.Server.Port)
 
 	httpServer = &http.Server{
-		Addr:         fmt.Sprintf("%s:%s", "localhost", "8090"),
+		Addr:         fmt.Sprintf("%s:%s", config.Get().System.Host, config.Get().System.Port),
 		Handler:      router(),
 		ReadTimeout:  300 * time.Second,
 		WriteTimeout: 300 * time.Second,

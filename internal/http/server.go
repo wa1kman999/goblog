@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/wa1kman999/goblog/config"
+	"github.com/wa1kman999/goblog/global"
 )
 
 var httpServer *http.Server
@@ -31,7 +31,7 @@ func router() http.Handler {
 func Serve() error {
 
 	httpServer = &http.Server{
-		Addr:         fmt.Sprintf("%s:%s", config.Get().System.Host, config.Get().System.Port),
+		Addr:         fmt.Sprintf("%s:%s", global.GBConfig.System.Host, global.GBConfig.System.Port),
 		Handler:      router(),
 		ReadTimeout:  300 * time.Second,
 		WriteTimeout: 300 * time.Second,

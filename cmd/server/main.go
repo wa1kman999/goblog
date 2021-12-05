@@ -8,7 +8,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/wa1kman999/goblog/config"
+	"github.com/wa1kman999/goblog/global"
 	"github.com/wa1kman999/goblog/initialize"
 	httpServer "github.com/wa1kman999/goblog/internal/http"
 	"golang.org/x/sync/errgroup"
@@ -58,13 +58,19 @@ func shutdown() error {
 }
 
 func init() {
-	_ = config.Init()
-	conf := config.Get()
+	// 配置文件初始化
+	if err := initialize.ConfigInit(); err != nil {
+		panic(err)
+	}
+	// 初始化zap
+	initialize.Zap()
 
-	log.Println(fmt.Sprintf("redis %s %s %d ", conf.Redis.Addr, conf.Redis.Password, conf.Redis.DB))
+	global.GBLog.Info(fmt.Sprintf("redis %s %s %d ", global.GBConfig.Redis.Addr, global.GBConfig.Redis.Password, global.GBConfig.Redis.DB))
 
 	// 初始化mysql连接
 
 	// 初始化redis
-	initialize.RedisClient()
+	if err := initialize.RedisClient(); err != nil {
+		panic(err)
+	}
 }

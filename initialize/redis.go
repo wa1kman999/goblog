@@ -2,16 +2,14 @@ package initialize
 
 import (
 	"context"
-	"log"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/wa1kman999/goblog/config"
+	"github.com/wa1kman999/goblog/global"
+	"go.uber.org/zap"
 )
 
-var globalRedis *redis.Client
-
-func RedisClient() {
-	redisCfg := config.Get().Redis
+func RedisClient() error {
+	redisCfg := global.GBConfig.Redis
 	client := redis.NewClient(&redis.Options{
 		Addr:     redisCfg.Addr,
 		Password: redisCfg.Password, // no password set
@@ -19,9 +17,10 @@ func RedisClient() {
 	})
 	pong, err := client.Ping(context.Background()).Result()
 	if err != nil {
-		log.Printf("redis connect ping failed, err: %s", err.Error())
-	} else {
-		log.Printf("redis connect ping response: %s", pong)
-		globalRedis = client
+		global.GBLog.Error("redis connect ping failed, err:", zap.Error(err))
+		return err
 	}
+	global.GBLog.Info("redis connect ping response:", zap.String("pong", pong))
+	global.GBRedis = client
+	return nil
 }

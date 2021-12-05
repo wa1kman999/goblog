@@ -3,13 +3,13 @@ jwt:
   signing-key: 'wa1kman'
   expires-time: 604800
   buffer-time: 86400
-  issuer: 'qmPlus'
+  issuer: 'wa1kman'
 
 # zap logger configuration
 zap:
   level: 'info'
   format: 'console'
-  prefix: '[github.com/flipped-aurora/gin-vue-admin/server]'
+  prefix: '[GoBlog]'
   director: 'log'
   show-line: true
   encode-level: 'LowercaseColorLevelEncoder'

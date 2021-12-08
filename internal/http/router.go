@@ -27,6 +27,12 @@ func initRouter(router *gin.Engine) error {
 	{
 		// 新建用户
 		user.POST("/user", userController.CreateUser)
+		// 通过id查询用户
+		user.GET("/user/:id", userController.GetUserInfo)
+		// 查询用户列表
+		user.POST("/user/list", userController.GetUserList)
+		// 编辑用户
+		//user.PUT("/user", userController.EditUser)
 	}
 
 	return nil

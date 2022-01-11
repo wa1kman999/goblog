@@ -1,13 +1,10 @@
 package user
 
 import (
-	"errors"
-	"fmt"
+	"github.com/go-errors/errors"
 
-	"github.com/wa1kman999/goblog/global"
 	"github.com/wa1kman999/goblog/pkg/user/model"
 	"github.com/wa1kman999/goblog/pkg/user/service"
-	"go.uber.org/zap"
 )
 
 type AppService struct{}
@@ -21,9 +18,7 @@ func (app *AppService) CreateUser(param *model.User) error {
 	userService := service.NewDomainUserService()
 	// 查询是否有同名的
 	user, err := userService.FindOne([]string{"id"}, map[string]interface{}{"username": param.Username})
-	fmt.Printf("%#v", user)
 	if err != nil {
-		global.GBLog.Error("查询同名的用户失败：", zap.Error(err))
 		return err
 	}
 	// 大于0 表示有同名的
@@ -41,7 +36,6 @@ func (app *AppService) GetUserInfo(id int) (*model.User, error) {
 	userService := service.NewDomainUserService()
 	userInfo, err := userService.FindOne([]string{}, map[string]interface{}{"id": id})
 	if err != nil {
-		global.GBLog.Error("查询user详情失败：", zap.Error(err))
 		return nil, err
 	}
 	return userInfo, nil

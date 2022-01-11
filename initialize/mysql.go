@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	"github.com/wa1kman999/goblog/global"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -80,5 +81,5 @@ func NewWriter(w logger.Writer) *writer {
 
 // Printf 格式化打印日志
 func (w *writer) Printf(message string, data ...interface{}) {
-	global.GBLog.Info(fmt.Sprintf(message+"\n", data...))
+	logrus.Info(fmt.Sprintf(message+"\n", data...))
 }

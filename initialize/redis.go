@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/sirupsen/logrus"
 	"github.com/wa1kman999/goblog/global"
-	"go.uber.org/zap"
 )
 
 func RedisClient() error {
@@ -17,10 +17,10 @@ func RedisClient() error {
 	})
 	pong, err := client.Ping(context.Background()).Result()
 	if err != nil {
-		global.GBLog.Error("redis connect ping failed, err:", zap.Error(err))
+		logrus.Errorf("redis connect ping failed, err: %s", err.Error())
 		return err
 	}
-	global.GBLog.Info("redis connect ping response:", zap.String("pong", pong))
+	logrus.Infof("redis connect ping response: %s", pong)
 	global.GBRedis = client
 	return nil
 }

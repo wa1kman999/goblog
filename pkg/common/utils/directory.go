@@ -3,8 +3,7 @@ package utils
 import (
 	"os"
 
-	"github.com/wa1kman999/goblog/global"
-	"go.uber.org/zap"
+	"github.com/sirupsen/logrus"
 )
 
 func PathExists(path string) (bool, error) {
@@ -25,9 +24,9 @@ func CreateDir(dirs ...string) (err error) {
 			return err
 		}
 		if !exist {
-			global.GBLog.Debug("create directory" + v)
+			logrus.Debug("create directory" + v)
 			if err := os.MkdirAll(v, os.ModePerm); err != nil {
-				global.GBLog.Error("create directory"+v, zap.Any(" error:", err))
+				logrus.Error("create directory"+v, err)
 				return err
 			}
 		}

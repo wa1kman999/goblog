@@ -3,7 +3,6 @@ package dao
 import (
 	"github.com/wa1kman999/goblog/global"
 	"github.com/wa1kman999/goblog/pkg/user/model"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -61,6 +60,7 @@ func (entity *UserEntity) FindManyByPage(fields string, query *model.User, pageI
 	}
 	offset := (pageIndex - 1) * pageSize
 	db := entity.dao.Select(fields)
+	entity.dao.Scopes()
 	entity.dao.Select(fields).Find(&users, query)
 	if query.Username != "" {
 		db = db.Where("username LIKE ?", "%"+query.Username+"%")
@@ -70,12 +70,10 @@ func (entity *UserEntity) FindManyByPage(fields string, query *model.User, pageI
 	}
 	err := db.Model(&model.User{}).Count(&count).Error
 	if err != nil {
-		global.GBLog.Error("查询count：", zap.Error(err))
 		return nil, 0, err
 	}
 	err = db.Offset(int(offset)).Limit(int(pageSize)).Find(&users).Error
 	if err != nil {
-		global.GBLog.Error("查询列表失败：", zap.Error(err))
 		return nil, 0, err
 	}
 

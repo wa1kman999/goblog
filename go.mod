@@ -5,8 +5,10 @@ go 1.17
 require (
 	github.com/fsnotify/fsnotify v1.5.1
 	github.com/gin-gonic/gin v1.7.7
+	github.com/go-errors/errors v1.4.1
 	github.com/go-redis/redis/v8 v8.11.4
 	github.com/natefinch/lumberjack v2.0.0+incompatible
+	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/viper v1.9.0
 	go.uber.org/zap v1.17.0
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c

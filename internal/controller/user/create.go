@@ -2,22 +2,23 @@ package user
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/wa1kman999/goblog/global"
 	userService "github.com/wa1kman999/goblog/internal/application/service/user"
 	"github.com/wa1kman999/goblog/internal/http/vs"
+	//"github.com/sirupsen/logrus"
+	"github.com/wa1kman999/goblog/pkg/common/logger"
 	"github.com/wa1kman999/goblog/pkg/user/model"
-	"go.uber.org/zap"
 )
 
 func CreateUser(ctx *gin.Context) {
-	var user *model.User
+	var user model.User
+	log := logger.WithContext(ctx.Request.Context())
 	if err := ctx.ShouldBindJSON(&user); err != nil {
-		global.GBLog.Error("user param is invalid:", zap.Error(err))
+		log.Errorf(err, "user param is invalid")
 		vs.SendParamParseError(ctx)
 		return
 	}
-	if err := userService.NewAppFormService().CreateUser(user); err != nil {
-		global.GBLog.Error("create user failed:", zap.Error(err))
+	if err := userService.NewAppFormService().CreateUser(&user); err != nil {
+		log.Errorf(err, "create user failed")
 		vs.SendBad(ctx, err)
 		return
 	}

@@ -1,13 +1,12 @@
 package main
 
 import (
-	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"github.com/sirupsen/logrus"
 	"github.com/wa1kman999/goblog/global"
 	"github.com/wa1kman999/goblog/initialize"
 	httpServer "github.com/wa1kman999/goblog/internal/http"
@@ -42,7 +41,7 @@ func main() {
 	})
 
 	if err := g.Wait(); err != nil {
-		log.Printf("服务运行失败: %s", err)
+		logrus.Printf("服务运行失败: %s", err)
 		panic(err)
 	}
 
@@ -65,20 +64,16 @@ func init() {
 	if err := initialize.ConfigInit(); err != nil {
 		panic(err)
 	}
-	// 初始化zap
-	initialize.Zap()
-
-	global.GBLog.Info(fmt.Sprintf("redis %s %s %d ", global.GBConfig.Redis.Addr, global.GBConfig.Redis.Password, global.GBConfig.Redis.DB))
 
 	// 初始化mysql连接
 	global.GBMysql = initialize.GormMysql()
-	if global.GBMysql != nil {
-		// 迁移表
-		initialize.RegisterTables(global.GBMysql)
-	}
+	//if global.GBMysql != nil {
+	//	// 迁移表
+	//	initialize.RegisterTables(global.GBMysql)
+	//}
 
 	// 初始化redis
-	if err := initialize.RedisClient(); err != nil {
-		panic(err)
-	}
+	//if err := initialize.RedisClient(); err != nil {
+	//	panic(err)
+	//}
 }

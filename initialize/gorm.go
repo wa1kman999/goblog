@@ -3,13 +3,12 @@ package initialize
 import (
 	"os"
 
-	"github.com/wa1kman999/goblog/global"
+	"github.com/sirupsen/logrus"
 	articleModel "github.com/wa1kman999/goblog/pkg/article/model"
 	categoryModel "github.com/wa1kman999/goblog/pkg/category/model"
 	commentModel "github.com/wa1kman999/goblog/pkg/comment/model"
 	profileModel "github.com/wa1kman999/goblog/pkg/profile/model"
 	userModel "github.com/wa1kman999/goblog/pkg/user/model"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -24,8 +23,8 @@ func RegisterTables(db *gorm.DB) {
 	)
 
 	if err != nil {
-		global.GBLog.Error("register table failed", zap.Error(err))
+		logrus.Errorf("register table failed: %s", err.Error())
 		os.Exit(0)
 	}
-	global.GBLog.Info("register table success")
+	logrus.Info("register table success")
 }

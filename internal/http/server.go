@@ -4,12 +4,16 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
+	ginSwaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/wa1kman999/goblog/global"
 	"github.com/wa1kman999/goblog/internal/http/middleware"
+	"github.com/wa1kman999/goblog/pkg/common/constants"
 )
 
 var httpServer *http.Server
@@ -18,9 +22,15 @@ func router() http.Handler {
 	r := gin.New()
 	// 跨域中间件
 	r.Use(middleware.Cors())
+
 	// 请求日志
-	//r.Use(middleware.DefaultLogger())
-	r.Use(gin.Logger())
+	//r.Use(middleware.Logger())
+	if gin.Mode() == gin.DebugMode {
+		r.Use(gin.Logger())
+	}
+
+	// 错误恢复
+	r.Use(gin.Recovery())
 
 	err := initRouter(r)
 	if err != nil {
@@ -28,8 +38,10 @@ func router() http.Handler {
 		return r
 	}
 
-	// 错误恢复
-	r.Use(gin.Recovery())
+	// release 模式下不提供接口文档访问
+	if string(constants.ReleaseMode) != os.Getenv("GIN_MODE") {
+		r.GET(v1prefix+"/swagger/*any", ginSwagger.WrapHandler(ginSwaggerFiles.Handler))
+	}
 
 	return r
 }

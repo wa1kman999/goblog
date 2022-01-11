@@ -42,7 +42,7 @@ func GormMysql() *gorm.DB {
 	}
 }
 
-// Config gorm 自定义配置
+// Config cond 自定义配置
 func (g *_gorm) Config() *gorm.Config {
 	config := &gorm.Config{
 		// 外键约束

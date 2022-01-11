@@ -15,7 +15,7 @@ type User interface {
 	// Create 新建一个用户
 	Create(data *model.User) error
 	// FindOne 查询一个
-	FindOne(fields []string, query interface{}) (*model.User, error)
+	FindOne(fields string, query interface{}, args ...interface{}) (model.User, error)
 	// FindManyByPage 分页查询
 	FindManyByPage(fields string, query *model.User, pageIndex, pageSize int64) ([]*model.User, int64, error)
 }
@@ -36,11 +36,11 @@ func (entity *UserEntity) Create(user *model.User) error {
 }
 
 // FindOne 通过名字查询
-func (entity *UserEntity) FindOne(fields []string, query interface{}) (*model.User, error) {
-	var user *model.User
-	err := entity.dao.Select(fields).Where(query).First(&user).Error
+func (entity *UserEntity) FindOne(fields string, query interface{}, args ...interface{}) (model.User, error) {
+	var user model.User
+	err := entity.dao.Select(fields).Where(query, args).First(&user).Error
 	if err != nil {
-		return nil, err
+		return user, err
 	}
 	return user, nil
 }
@@ -60,8 +60,6 @@ func (entity *UserEntity) FindManyByPage(fields string, query *model.User, pageI
 	}
 	offset := (pageIndex - 1) * pageSize
 	db := entity.dao.Select(fields)
-	entity.dao.Scopes()
-	entity.dao.Select(fields).Find(&users, query)
 	if query.Username != "" {
 		db = db.Where("username LIKE ?", "%"+query.Username+"%")
 	}

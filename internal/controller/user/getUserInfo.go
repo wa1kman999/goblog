@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	userService "github.com/wa1kman999/goblog/internal/application/service/user"
+	"github.com/wa1kman999/goblog/internal/controller/user/resp"
 	"github.com/wa1kman999/goblog/internal/http/vs"
 )
 
@@ -19,11 +20,16 @@ func GetUserInfo(ctx *gin.Context) {
 		return
 	}
 	id, _ := strconv.Atoi(userId)
-	userInfo, err := userService.NewAppFormService().GetUserInfo(id)
+	user, err := userService.NewAppFormService().GetUserInfo(id)
 	if err != nil {
 		logger.Errorf("查询用户失败: %s", err)
 		vs.SendBad(ctx, err)
 		return
+	}
+	userInfo := resp.UserResp{
+		Id:       user.ID,
+		UserName: user.Username,
+		Role:     user.Role,
 	}
 	vs.SendOkData(ctx, userInfo)
 }

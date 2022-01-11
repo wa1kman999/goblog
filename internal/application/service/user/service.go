@@ -2,7 +2,6 @@ package user
 
 import (
 	"github.com/go-errors/errors"
-
 	"github.com/wa1kman999/goblog/pkg/user/model"
 	"github.com/wa1kman999/goblog/pkg/user/service"
 )
@@ -17,7 +16,7 @@ func NewAppFormService() *AppService {
 func (app *AppService) CreateUser(param *model.User) error {
 	userService := service.NewDomainUserService()
 	// 查询是否有同名的
-	user, err := userService.FindOne([]string{"id"}, map[string]interface{}{"username": param.Username})
+	user, err := userService.FindOne("id", "username = ?", param.Username)
 	if err != nil {
 		return err
 	}
@@ -32,11 +31,11 @@ func (app *AppService) CreateUser(param *model.User) error {
 }
 
 // GetUserInfo 获取用户详细信息
-func (app *AppService) GetUserInfo(id int) (*model.User, error) {
+func (app *AppService) GetUserInfo(id int) (model.User, error) {
 	userService := service.NewDomainUserService()
-	userInfo, err := userService.FindOne([]string{}, map[string]interface{}{"id": id})
+	userInfo, err := userService.FindOne("id, username, role", "id = ?", id)
 	if err != nil {
-		return nil, err
+		return model.User{}, err
 	}
 	return userInfo, nil
 }
@@ -48,7 +47,7 @@ func (app *AppService) GetUserList(userName string, role int, pageIndex, pageSiz
 		Username: userName,
 		Role:     role,
 	}
-	userList, count, err := userService.FindManyByPage("id, username,role", query, pageIndex, pageSize)
+	userList, count, err := userService.FindManyByPage("id, username, role", query, pageIndex, pageSize)
 	if err != nil {
 		return nil, 0, err
 	}

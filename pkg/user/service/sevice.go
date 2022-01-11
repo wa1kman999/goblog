@@ -9,7 +9,7 @@ type DomainUser interface {
 	// Create 创建一个用户
 	Create(user *model.User) error
 	// FindOne 查询一个
-	FindOne(fields []string, query interface{}) (*model.User, error)
+	FindOne(fields string, query interface{}, args ...interface{}) (model.User, error)
 	// FindManyByPage 分页查询
 	FindManyByPage(fields string, query *model.User, pageIndex, pageSize int64) ([]*model.User, int64, error)
 }
@@ -32,12 +32,12 @@ func (domain *DomainUserService) Create(user *model.User) error {
 }
 
 // FindOne 查询一个
-func (domain *DomainUserService) FindOne(fields []string, query interface{}) (*model.User, error) {
+func (domain *DomainUserService) FindOne(fields string, query interface{}, args ...interface{}) (model.User, error) {
 	entity, err := dao.NewUserEntity()
 	if err != nil {
-		return nil, err
+		return model.User{}, err
 	}
-	return entity.FindOne(fields, query)
+	return entity.FindOne(fields, query, args)
 }
 
 // FindManyByPage 分页查询

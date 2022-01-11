@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	userService "github.com/wa1kman999/goblog/internal/application/service/user"
+	"github.com/wa1kman999/goblog/internal/controller/user/resp"
 	"github.com/wa1kman999/goblog/internal/http/vs"
 )
 
@@ -30,6 +31,15 @@ func GetUserList(ctx *gin.Context) {
 		vs.SendBad(ctx, err)
 		return
 	}
-	res := vs.NewResData(param.PageIndex, param.PageSize, count, userList)
+	userRespList := make([]resp.UserResp, 0, len(userList))
+	for _, v := range userList {
+		temp := resp.UserResp{
+			Id:       v.ID,
+			UserName: v.Username,
+			Role:     v.Role,
+		}
+		userRespList = append(userRespList, temp)
+	}
+	res := vs.NewResData(param.PageIndex, param.PageSize, count, userRespList)
 	vs.SendOkData(ctx, res)
 }

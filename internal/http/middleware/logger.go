@@ -1,87 +1,265 @@
 package middleware
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
-	"fmt"
+	"io"
 	"io/ioutil"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+	"github.com/wa1kman999/goblog/pkg/common/constants"
+	prefixed "github.com/x-cray/logrus-prefixed-formatter"
 )
 
-// LogLayout 日志layout
-type LogLayout struct {
-	Time      time.Time
-	Metadata  map[string]interface{} // 存储自定义原数据
-	Path      string                 // 访问路径
-	Query     string                 // 携带query
-	Body      string                 // 携带body数据
-	IP        string                 // ip地址
-	UserAgent string                 // 代理
-	Error     string                 // 错误
-	Cost      time.Duration          // 花费时间
-	Source    string                 // 来源
+type bufferedWriter struct {
+	gin.ResponseWriter
+	out    *bufio.Writer
+	Buffer bytes.Buffer
 }
 
-type Logger struct {
-	// Filter 用户自定义过滤
-	Filter func(c *gin.Context) bool
-	// FilterKeyword 关键字过滤(key)
-	FilterKeyword func(layout *LogLayout) bool
-	// AuthProcess 鉴权处理
-	AuthProcess func(c *gin.Context, layout *LogLayout)
-	// 日志处理
-	Print func(LogLayout)
-	// Source 服务唯一标识
-	Source string
-}
+// Logger 日志中间件
+func Logger() gin.HandlerFunc {
+	// 实例化
+	logger := logrus.New()
 
-func (l Logger) SetLoggerMiddleware() gin.HandlerFunc {
+	// 设置输出
+	logger.Out = os.Stdout
+
+	// 设置日志级别
+	logger.SetLevel(logrus.InfoLevel)
+
+	// 设置日志格式
+	logger.SetFormatter(&logrus.JSONFormatter{
+		TimestampFormat: "2006-01-02 15:04:05",
+	})
+
+	// 生产环境下，打印req body 但是不打印 res body
+	if string(constants.ReleaseMode) == os.Getenv("GIN_MODE") {
+		return func(c *gin.Context) {
+
+			// 开始时间
+			start := time.Now()
+
+			// 读取req body，如果 request header 中 Content-Type 为 application/json
+			reqBody := make(map[string]interface{})
+			if c.Request.Header.Get("Content-Type") == "application/json" {
+				bodyCopy := new(bytes.Buffer)
+				// Read the whole body
+				_, err := io.Copy(bodyCopy, c.Request.Body)
+				if err != nil {
+					logrus.Error(err)
+				} else {
+					bodyData := bodyCopy.Bytes()
+					c.Request.Body = ioutil.NopCloser(bytes.NewReader(bodyData))
+					if len(bodyData) > 0 {
+						err = json.Unmarshal(bodyData, &reqBody)
+						if err != nil {
+							logrus.Errorf("%s", string(bodyData))
+							return
+						}
+					}
+				}
+			}
+
+			// 处理请求
+			c.Next()
+
+			// 结束时间
+			end := time.Now()
+
+			// 执行时间
+			rt := end.Sub(start)
+
+			// 请求方式
+			method := c.Request.Method
+
+			// 请求路由
+			url := c.Request.URL.String()
+
+			// 状态码
+			code := c.Writer.Status()
+
+			// 请求IP
+			client := c.ClientIP()
+
+			// 协议
+			proto := c.Request.Proto
+
+			// 日志格式
+			logger.WithFields(logrus.Fields{
+				"type":            "http",
+				"code":            code,
+				"rt":              rt,
+				"client":          client,
+				"method":          method,
+				"url":             url,
+				"proto":           proto,
+				"body_bytes_sent": c.Request.ContentLength,
+			}).Info()
+
+			if len(reqBody) > 0 {
+				logger.WithFields(logrus.Fields{
+					"prefix": "req_body",
+				}).Info(reqBody)
+			}
+		}
+	}
+
+	// 测试环境，打印req body和res body
+	if string(constants.TestMode) == os.Getenv("GIN_MODE") {
+		return func(c *gin.Context) {
+
+			// 忽略掉swagger路由
+			if isSwaggerRoute(c) {
+				return
+			}
+
+			// 开始时间
+			start := time.Now()
+
+			// 读取res body
+			w := bufio.NewWriter(c.Writer)
+			defer func() {
+				err := w.Flush()
+				if err != nil {
+					logrus.Error(err)
+				}
+			}()
+			resBuf := bytes.Buffer{}
+			newWriter := &bufferedWriter{c.Writer, w, resBuf}
+			c.Writer = newWriter
+
+			// 处理请求
+			c.Next()
+
+			// 结束时间
+			end := time.Now()
+
+			// 执行时间
+			rt := end.Sub(start)
+
+			// 请求方式
+			method := c.Request.Method
+
+			// 请求路由
+			url := c.Request.URL.String()
+
+			// 状态码
+			code := c.Writer.Status()
+
+			// 请求IP
+			client := c.ClientIP()
+
+			// 协议
+			proto := c.Request.Proto
+
+			// 读取req body
+			reqBuf, err := ioutil.ReadAll(c.Request.Body)
+			if err != nil {
+				logrus.Error(err)
+				return
+			}
+			reqBody := make(map[string]interface{})
+			if len(reqBuf) > 0 {
+				_ = json.Unmarshal(reqBuf, &reqBody)
+			}
+
+			resBody := make(map[string]interface{})
+			resBuff := newWriter.Buffer.Bytes()
+			if len(resBuff) > 0 {
+				_ = json.Unmarshal(resBuff, &resBody)
+			}
+
+			// 日志格式
+			logger.WithFields(logrus.Fields{
+				"type":            "http",
+				"code":            code,
+				"rt":              rt,
+				"client":          client,
+				"method":          method,
+				"url":             url,
+				"proto":           proto,
+				"req_body":        reqBody,
+				"res_body":        resBody,
+				"body_bytes_sent": c.Request.ContentLength,
+			}).Info()
+
+		}
+	}
+
+	// 开发环境下，打印req body和res body
 	return func(c *gin.Context) {
-		start := time.Now()
-		path := c.Request.URL.Path
-		query := c.Request.URL.RawQuery
-		var body []byte
-		if l.Filter != nil && !l.Filter(c) {
-			body, _ = c.GetRawData()
-			// 将原body塞回去
-			c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+
+		// 忽略掉swagger路由
+		if isSwaggerRoute(c) {
+			return
 		}
+
+		logger.SetFormatter(&prefixed.TextFormatter{
+			TimestampFormat: "2006-01-02 15:04:05",
+		})
+
+		// 读取req body，如果 request header 中 Content-Type 为 application/json
+		reqBody := make(map[string]interface{})
+		if c.Request.Header.Get("Content-Type") == "application/json" {
+			bodyCopy := new(bytes.Buffer)
+			// Read the whole body
+			_, err := io.Copy(bodyCopy, c.Request.Body)
+			if err != nil {
+				logrus.Error(err)
+			} else {
+				bodyData := bodyCopy.Bytes()
+				c.Request.Body = ioutil.NopCloser(bytes.NewReader(bodyData))
+				if len(bodyData) > 0 {
+					err = json.Unmarshal(bodyData, &reqBody)
+					if err != nil {
+						logrus.Error(err)
+						return
+					}
+				}
+			}
+		}
+
+		// 读取res body
+		w := bufio.NewWriter(c.Writer)
+		defer func() {
+			err := w.Flush()
+			if err != nil {
+				logrus.Error(err)
+			}
+		}()
+		resBuf := bytes.Buffer{}
+		newWriter := &bufferedWriter{c.Writer, w, resBuf}
+		c.Writer = newWriter
+
+		// 处理请求
 		c.Next()
-		cost := time.Since(start)
-		layout := LogLayout{
-			Time:      time.Now(),
-			Path:      path,
-			Query:     query,
-			IP:        c.ClientIP(),
-			UserAgent: c.Request.UserAgent(),
-			Error:     strings.TrimRight(c.Errors.ByType(gin.ErrorTypePrivate).String(), "\n"),
-			Cost:      cost,
-			Source:    l.Source,
+
+		// 解析res body
+		resBody := make(map[string]interface{})
+		resBuff := newWriter.Buffer.Bytes()
+		if len(resBuff) > 0 {
+			_ = json.Unmarshal(resBuff, &resBody)
 		}
-		if l.Filter != nil && !l.Filter(c) {
-			layout.Body = string(body)
-		}
-		// 处理鉴权需要的信息
-		//l.AuthProcess(c, &layout)
-		if l.FilterKeyword != nil {
-			// 自行判断key/value 脱敏等
-			l.FilterKeyword(&layout)
-		}
-		// 自行处理日志
-		l.Print(layout)
+
+		// 日志格式
+		logger.WithFields(logrus.Fields{
+			"prefix":          "req_body",
+			"body_bytes_sent": c.Request.ContentLength,
+		}).Info(reqBody)
+		logger.WithFields(logrus.Fields{
+			"prefix": "res_body",
+		}).Info(resBody)
 	}
 }
 
-func DefaultLogger() gin.HandlerFunc {
-	return Logger{
-		Print: func(layout LogLayout) {
-			// 标准输出,k8s做收集
-			v, _ := json.Marshal(layout)
-			fmt.Println(string(v))
-		},
-		Source: "goBlog",
-	}.SetLoggerMiddleware()
+// isSwaggerRoute 判断是否是swagger路由，如果是则取消对
+func isSwaggerRoute(c *gin.Context) bool {
+	// 忽略掉swagger路由
+	return strings.Contains(c.Request.RequestURI, "swagger")
 }

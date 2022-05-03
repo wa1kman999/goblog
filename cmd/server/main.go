@@ -67,10 +67,10 @@ func init() {
 
 	// 初始化mysql连接
 	global.GBMysql = initialize.GormMysql()
-	//if global.GBMysql != nil {
-	//	// 迁移表
-	//	initialize.RegisterTables(global.GBMysql)
-	//}
+	if global.GBMysql != nil {
+		// 迁移表
+		initialize.RegisterTables(global.GBMysql)
+	}
 
 	// 初始化redis
 	//if err := initialize.RedisClient(); err != nil {

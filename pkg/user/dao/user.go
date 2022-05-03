@@ -38,7 +38,7 @@ func (entity *UserEntity) Create(user *model.User) error {
 // FindOne 通过名字查询
 func (entity *UserEntity) FindOne(fields string, query interface{}, args ...interface{}) (model.User, error) {
 	var user model.User
-	err := entity.dao.Select(fields).Where(query, args).First(&user).Error
+	err := entity.dao.Select(fields).Where(query, args...).First(&user).Error
 	if err != nil {
 		return user, err
 	}

@@ -25,6 +25,7 @@ func initRouter(router *gin.Engine) error {
 	/*
 		前端展示页面接口
 	*/
+	router.POST("/login", userController.Login)
 	user := router.Group(v1prefix + "/user")
 	{
 		// 新建用户

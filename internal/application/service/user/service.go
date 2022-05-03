@@ -12,14 +12,25 @@ func NewAppFormService() *AppService {
 	return &AppService{}
 }
 
+// Login 登陆
+func (app *AppService) Login(param *model.User) (model.User, error) {
+	userService := service.NewDomainUserService()
+	user, err := userService.FindOne("*",
+		map[string]interface{}{
+			"username": param.Username,
+			"password": param.Password,
+		})
+	if err != nil {
+		return model.User{}, err
+	}
+	return user, nil
+}
+
 // CreateUser 创建user
 func (app *AppService) CreateUser(param *model.User) error {
 	userService := service.NewDomainUserService()
 	// 查询是否有同名的
-	user, err := userService.FindOne("id", "username = ?", param.Username)
-	if err != nil {
-		return err
-	}
+	user, _ := userService.FindOne("id", "username = ?", param.Username)
 	// 大于0 表示有同名的
 	if user.ID > 0 {
 		return errors.New("名字重复")

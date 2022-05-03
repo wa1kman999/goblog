@@ -69,14 +69,14 @@ func SendOkData(ctx *gin.Context, resData interface{}) {
 func SendParamParseError(ctx *gin.Context) {
 	res := NewRes(false, ReqDataValError, struct{}{})
 	res.Code = StatusBadRequest
-	ctx.JSON(http.StatusBadRequest, res)
+	ctx.JSON(http.StatusOK, res)
 }
 
 // SendBad 失败
 func SendBad(ctx *gin.Context, err error) {
 	res := NewRes(false, err.Error(), struct{}{})
 	res.Code = StatusBadRequest
-	ctx.JSON(http.StatusBadRequest, res)
+	ctx.JSON(http.StatusOK, res)
 }
 
 // SendBadData 返回错误
@@ -84,5 +84,5 @@ func SendBadData(ctx *gin.Context, err error, resData interface{}) {
 	res := NewRes(false, err.Error(), struct{}{})
 	res.Code = StatusBadRequest
 	res.Data = resData
-	ctx.JSON(http.StatusBadRequest, res)
+	ctx.JSON(http.StatusOK, res)
 }

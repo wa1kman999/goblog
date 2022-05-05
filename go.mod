@@ -22,10 +22,13 @@ require (
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
+	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14
 	github.com/swaggo/gin-swagger v1.3.3
+	github.com/tklauser/go-sysconf v0.3.10 // indirect
 	github.com/ugorji/go v1.2.7 // indirect
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2
+	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	golang.org/x/crypto v0.0.0-20220427172511-eb4f295cb31f // indirect
 	golang.org/x/sys v0.0.0-20220429233432-b5fbb4746d32 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect

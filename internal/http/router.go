@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	systemController "github.com/wa1kman999/goblog/internal/controller/system"
 	userController "github.com/wa1kman999/goblog/internal/controller/user"
 )
 
@@ -36,6 +37,11 @@ func initRouter(router *gin.Engine) error {
 		user.POST("/list", userController.GetUserList)
 		// 编辑用户
 		//user.PUT("/user", userController.EditUser)
+	}
+	system := router.Group(v1prefix + "/system")
+	{
+		// 查询服务器状态
+		system.GET("/state", systemController.GetServerInfo)
 	}
 
 	return nil

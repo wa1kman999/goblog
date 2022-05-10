@@ -171,3 +171,7 @@ func (e *Entry) Fatalf(err error, format string, args ...interface{}) {
 func (e *Entry) Panicf(err error, format string, args ...interface{}) {
 	e.entry.WithError(err).Panicf(format, args...)
 }
+
+func Errorf(ctx context.Context, err error, format string, args ...interface{}) {
+	WithContext(ctx).Errorf(err, format, args)
+}

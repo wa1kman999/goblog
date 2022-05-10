@@ -13,11 +13,15 @@ const (
 
 type User interface {
 	// Create 新建一个用户
-	Create(data *model.User) error
+	Create(data model.User) error
 	// FindOne 查询一个
 	FindOne(fields string, query interface{}, args ...interface{}) (model.User, error)
 	// FindManyByPage 分页查询
 	FindManyByPage(fields string, query *model.User, pageIndex, pageSize int64) ([]*model.User, int64, error)
+	// Update 更新操作
+	Update(value map[string]interface{}, query interface{}, args ...interface{}) error
+	// Delete 删除
+	Delete(query interface{}, args ...interface{}) error
 }
 
 type UserEntity struct {
@@ -31,8 +35,8 @@ func NewUserEntity() (User, error) {
 }
 
 // Create 新建一个用户
-func (entity *UserEntity) Create(user *model.User) error {
-	return entity.dao.Create(user).Error
+func (entity *UserEntity) Create(user model.User) error {
+	return entity.dao.Create(&user).Error
 }
 
 // FindOne 通过名字查询
@@ -76,4 +80,15 @@ func (entity *UserEntity) FindManyByPage(fields string, query *model.User, pageI
 	}
 
 	return users, count, nil
+}
+
+// Update 更新操作
+func (entity *UserEntity) Update(value map[string]interface{}, query interface{}, args ...interface{}) error {
+	var user model.User
+	return entity.dao.Model(&user).Where(query, args).Updates(value).Error
+}
+
+// Delete 删除
+func (entity *UserEntity) Delete(query interface{}, args ...interface{}) error {
+	return entity.dao.Where(query, args...).Delete(&model.User{}).Error
 }

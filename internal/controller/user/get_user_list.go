@@ -2,10 +2,10 @@ package user
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 	userService "github.com/wa1kman999/goblog/internal/application/service/user"
 	"github.com/wa1kman999/goblog/internal/controller/user/resp"
 	"github.com/wa1kman999/goblog/internal/http/vs"
+	"github.com/wa1kman999/goblog/pkg/common/logger"
 )
 
 type Param struct {
@@ -17,17 +17,16 @@ type Param struct {
 
 // GetUserList 查询用户列表
 func GetUserList(ctx *gin.Context) {
-	var param Param
-	logger := logrus.WithContext(ctx.Request.Context())
-	err := ctx.ShouldBindJSON(&param)
+	var r Param
+	err := ctx.ShouldBindJSON(&r)
 	if err != nil {
-		logger.Error("查询用户列表参数保定失败")
+		logger.Errorf(ctx.Request.Context(), err, "%v参数绑定失败", ctx.Request.RequestURI)
 		vs.SendParamParseError(ctx)
 		return
 	}
-	userList, count, err := userService.NewAppFormService().GetUserList(param.UserName, param.Role, param.PageIndex, param.PageSize)
+	userList, count, err := userService.NewUserService().GetUserList(r.UserName, r.Role, r.PageIndex, r.PageSize)
 	if err != nil {
-		logger.Errorf("查询用户列表失败: %s", err)
+		logger.Errorf(ctx.Request.Context(), err, "%v查询用户列表失败", ctx.Request.RequestURI)
 		vs.SendBad(ctx, err)
 		return
 	}
@@ -40,6 +39,6 @@ func GetUserList(ctx *gin.Context) {
 		}
 		userRespList = append(userRespList, temp)
 	}
-	res := vs.NewResData(param.PageIndex, param.PageSize, count, userRespList)
+	res := vs.NewResData(r.PageIndex, r.PageSize, count, userRespList)
 	vs.SendOkData(ctx, res)
 }

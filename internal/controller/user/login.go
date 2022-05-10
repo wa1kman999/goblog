@@ -35,7 +35,7 @@ func Login(ctx *gin.Context) {
 		Username: l.Username,
 		Password: l.Password,
 	}
-	if user, err := userService.NewAppFormService().Login(u); err != nil {
+	if user, err := userService.NewUserService().Login(u); err != nil {
 		log.Errorf(err, "登陆失败! 用户名不存在或者密码错误!")
 		vs.SendBad(ctx, errors.New("登陆失败! 用户名不存在或者密码错误"))
 		return

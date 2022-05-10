@@ -36,7 +36,9 @@ func initRouter(router *gin.Engine) error {
 		// 查询用户列表
 		user.POST("/list", userController.GetUserList)
 		// 编辑用户
-		//user.PUT("/user", userController.EditUser)
+		user.PUT("", userController.EditUser)
+		// 删除用户
+		user.DELETE("/:id", userController.DeleteUser)
 	}
 	system := router.Group(v1prefix + "/system")
 	{

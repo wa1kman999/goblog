@@ -6,14 +6,23 @@ import (
 	"github.com/wa1kman999/goblog/pkg/user/service"
 )
 
-type AppService struct{}
+type IUserService interface {
+	Login(param *model.User) (model.User, error)
+	CreateUser(param model.User) error
+	GetUserInfo(id int) (model.User, error)
+	GetUserList(userName string, role int, pageIndex, pageSize int64) ([]*model.User, int64, error)
+	EditUser(param model.User) error
+	DeleteUser(id int) error
+}
 
-func NewAppFormService() *AppService {
-	return &AppService{}
+type ServiceUser struct{}
+
+func NewUserService() IUserService {
+	return &ServiceUser{}
 }
 
 // Login 登陆
-func (app *AppService) Login(param *model.User) (model.User, error) {
+func (app *ServiceUser) Login(param *model.User) (model.User, error) {
 	userService := service.NewDomainUserService()
 	user, err := userService.FindOne("*",
 		map[string]interface{}{
@@ -27,7 +36,7 @@ func (app *AppService) Login(param *model.User) (model.User, error) {
 }
 
 // CreateUser 创建user
-func (app *AppService) CreateUser(param *model.User) error {
+func (app *ServiceUser) CreateUser(param model.User) error {
 	userService := service.NewDomainUserService()
 	// 查询是否有同名的
 	user, _ := userService.FindOne("id", "username = ?", param.Username)
@@ -42,7 +51,7 @@ func (app *AppService) CreateUser(param *model.User) error {
 }
 
 // GetUserInfo 获取用户详细信息
-func (app *AppService) GetUserInfo(id int) (model.User, error) {
+func (app *ServiceUser) GetUserInfo(id int) (model.User, error) {
 	userService := service.NewDomainUserService()
 	userInfo, err := userService.FindOne("id, username, role", "id = ?", id)
 	if err != nil {
@@ -52,7 +61,7 @@ func (app *AppService) GetUserInfo(id int) (model.User, error) {
 }
 
 // GetUserList 获取user列表
-func (app *AppService) GetUserList(userName string, role int, pageIndex, pageSize int64) ([]*model.User, int64, error) {
+func (app *ServiceUser) GetUserList(userName string, role int, pageIndex, pageSize int64) ([]*model.User, int64, error) {
 	userService := service.NewDomainUserService()
 	query := &model.User{
 		Username: userName,
@@ -65,6 +74,15 @@ func (app *AppService) GetUserList(userName string, role int, pageIndex, pageSiz
 	return userList, count, nil
 }
 
-func (app *AppService) EditUser() {
+// EditUser 更新user信息
+func (app *ServiceUser) EditUser(param model.User) error {
+	userService := service.NewDomainUserService()
+	return userService.Update(map[string]interface{}{
+		"username": param.Username,
+		"role":     param.Role,
+	}, "id = ?", param.ID)
+}
 
+func (app *ServiceUser) DeleteUser(id int) error {
+	return service.NewDomainUserService().Delete("id = ?", id)
 }

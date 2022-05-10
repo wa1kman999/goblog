@@ -24,7 +24,7 @@ func router() http.Handler {
 	r.Use(middleware.Cors())
 
 	// 请求日志
-	//r.Use(middleware.Logger())
+	r.Use(middleware.Logger())
 	if gin.Mode() == gin.DebugMode {
 		r.Use(gin.Logger())
 	}

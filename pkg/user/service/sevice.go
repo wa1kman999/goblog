@@ -7,11 +7,15 @@ import (
 
 type DomainUser interface {
 	// Create 创建一个用户
-	Create(user *model.User) error
+	Create(user model.User) error
 	// FindOne 查询一个
 	FindOne(fields string, query interface{}, args ...interface{}) (model.User, error)
 	// FindManyByPage 分页查询
 	FindManyByPage(fields string, query *model.User, pageIndex, pageSize int64) ([]*model.User, int64, error)
+	// Update 更新
+	Update(value map[string]interface{}, query interface{}, args ...interface{}) error
+	// Delete 删除
+	Delete(query interface{}, args ...interface{}) error
 }
 
 // DomainUserService 用户领域服务
@@ -23,7 +27,7 @@ func NewDomainUserService() DomainUser {
 }
 
 // Create 新建一个人
-func (domain *DomainUserService) Create(user *model.User) error {
+func (domain *DomainUserService) Create(user model.User) error {
 	entity, err := dao.NewUserEntity()
 	if err != nil {
 		return err
@@ -47,4 +51,22 @@ func (domain *DomainUserService) FindManyByPage(fields string, query *model.User
 		return nil, 0, err
 	}
 	return entity.FindManyByPage(fields, query, pageIndex, pageSize)
+}
+
+// Update 更新
+func (domain *DomainUserService) Update(value map[string]interface{}, query interface{}, args ...interface{}) error {
+	entity, err := dao.NewUserEntity()
+	if err != nil {
+		return err
+	}
+	return entity.Update(value, query, args)
+}
+
+// Delete 删除
+func (domain *DomainUserService) Delete(query interface{}, args ...interface{}) error {
+	entity, err := dao.NewUserEntity()
+	if err != nil {
+		return err
+	}
+	return entity.Delete(query, args)
 }

@@ -4,10 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	userService "github.com/wa1kman999/goblog/internal/application/service/user"
 	"github.com/wa1kman999/goblog/internal/http/vs"
-	"github.com/wa1kman999/goblog/pkg/user/model"
-
-	//"github.com/sirupsen/logrus"
 	"github.com/wa1kman999/goblog/pkg/common/logger"
+	"github.com/wa1kman999/goblog/pkg/user/model"
 )
 
 type CreateUserReq struct {
@@ -17,17 +15,16 @@ type CreateUserReq struct {
 
 func CreateUser(ctx *gin.Context) {
 	var r CreateUserReq
-	log := logger.WithContext(ctx.Request.Context())
 	if err := ctx.ShouldBindJSON(&r); err != nil {
-		log.Errorf(err, "user param is invalid")
+		logger.Errorf(ctx.Request.Context(), err, "%v,参数绑定失败", ctx.Request.RequestURI)
 		vs.SendParamParseError(ctx)
 		return
 	}
-	if err := userService.NewAppFormService().CreateUser(&model.User{
+	if err := userService.NewUserService().CreateUser(model.User{
 		Username: r.UserName,
 		Password: r.PassWord,
 	}); err != nil {
-		log.Errorf(err, "create user failed")
+		logger.Errorf(ctx.Request.Context(), err, "创建用户失败,%v", r.UserName, r.PassWord)
 		vs.SendBad(ctx, err)
 		return
 	}

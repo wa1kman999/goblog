@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	articleController "github.com/wa1kman999/goblog/internal/controller/article"
 	systemController "github.com/wa1kman999/goblog/internal/controller/system"
 	userController "github.com/wa1kman999/goblog/internal/controller/user"
 )
@@ -27,6 +28,7 @@ func initRouter(router *gin.Engine) error {
 		前端展示页面接口
 	*/
 	router.POST("/login", userController.Login)
+	// 用户相关的接口
 	user := router.Group(v1prefix + "/user")
 	{
 		// 新建用户
@@ -40,6 +42,15 @@ func initRouter(router *gin.Engine) error {
 		// 删除用户
 		user.DELETE("/:id", userController.DeleteUser)
 	}
+	// 文章相关的接口
+	article := router.Group(v1prefix + "/article")
+	{
+		// 新建文章
+		article.POST("", articleController.CreateArticle)
+		// 上传图片到本地
+		article.POST("/img", articleController.Upload)
+	}
+
 	system := router.Group(v1prefix + "/system")
 	{
 		// 查询服务器状态

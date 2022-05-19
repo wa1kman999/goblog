@@ -7,7 +7,7 @@ import (
 
 type DomainArticle interface {
 	// Create 创建一个用户
-	Create(user model.Article) error
+	Create(article model.Article) error
 	// FindOne 查询一个
 	FindOne(fields string, query interface{}, args ...interface{}) (model.Article, error)
 	// FindManyByPage 分页查询
@@ -22,22 +22,22 @@ type DomainArticle interface {
 type DomainArticleService struct {
 }
 
-func NewDomainUserService() DomainArticle {
+func NewDomainArticleService() DomainArticle {
 	return new(DomainArticleService)
 }
 
-// Create 新建一个人
-func (domain *DomainArticleService) Create(user model.Article) error {
-	entity, err := dao.NewUserEntity()
+// Create 新建文章
+func (domain *DomainArticleService) Create(article model.Article) error {
+	entity, err := dao.NewArticleEntity()
 	if err != nil {
 		return err
 	}
-	return entity.Create(user)
+	return entity.Create(article)
 }
 
 // FindOne 查询一个
 func (domain *DomainArticleService) FindOne(fields string, query interface{}, args ...interface{}) (model.Article, error) {
-	entity, err := dao.NewUserEntity()
+	entity, err := dao.NewArticleEntity()
 	if err != nil {
 		return model.Article{}, err
 	}
@@ -46,7 +46,7 @@ func (domain *DomainArticleService) FindOne(fields string, query interface{}, ar
 
 // FindManyByPage 分页查询
 func (domain *DomainArticleService) FindManyByPage(fields string, query *model.Article, pageIndex, pageSize int64) ([]*model.Article, int64, error) {
-	entity, err := dao.NewUserEntity()
+	entity, err := dao.NewArticleEntity()
 	if err != nil {
 		return nil, 0, err
 	}
@@ -55,7 +55,7 @@ func (domain *DomainArticleService) FindManyByPage(fields string, query *model.A
 
 // Update 更新
 func (domain *DomainArticleService) Update(value map[string]interface{}, query interface{}, args ...interface{}) error {
-	entity, err := dao.NewUserEntity()
+	entity, err := dao.NewArticleEntity()
 	if err != nil {
 		return err
 	}
@@ -64,7 +64,7 @@ func (domain *DomainArticleService) Update(value map[string]interface{}, query i
 
 // Delete 删除
 func (domain *DomainArticleService) Delete(query interface{}, args ...interface{}) error {
-	entity, err := dao.NewUserEntity()
+	entity, err := dao.NewArticleEntity()
 	if err != nil {
 		return err
 	}

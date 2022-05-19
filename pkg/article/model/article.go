@@ -7,7 +7,7 @@ import (
 
 // Article 文章
 type Article struct {
-	Category model.Category `gorm:"foreignkey:Cid"`
+	Category model.Category `gorm:"foreignkey:Cid" json:"category"`
 	gorm.Model
 	Title        string `gorm:"type:varchar(100);not null" json:"title" binding:"required"`
 	Cid          int    `gorm:"type:int;not null" json:"cid" binding:"required"`

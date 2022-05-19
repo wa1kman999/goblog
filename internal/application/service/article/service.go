@@ -15,6 +15,7 @@ import (
 type IArticleService interface {
 	CreateArticle(param model.Article) error
 	Upload(file *multipart.FileHeader) (string, error)
+	GetArticleList(title string, pageIndex, pageSize int64) ([]*model.Article, int64, error)
 }
 
 type ServiceArticle struct{}
@@ -25,8 +26,8 @@ func NewArticleService() IArticleService {
 
 // CreateArticle 新建文章
 func (app *ServiceArticle) CreateArticle(param model.Article) error {
-	userService := service.NewDomainUserService()
-	if err := userService.Create(param); err != nil {
+	articleService := service.NewDomainArticleService()
+	if err := articleService.Create(param); err != nil {
 		return err
 	}
 	return nil
@@ -66,4 +67,17 @@ func (app *ServiceArticle) Upload(file *multipart.FileHeader) (string, error) {
 		return "", err
 	}
 	return p, nil
+}
+
+// GetArticleList 获取文章列表
+func (app *ServiceArticle) GetArticleList(title string, pageIndex, pageSize int64) ([]*model.Article, int64, error) {
+	categoryService := service.NewDomainArticleService()
+	query := &model.Article{
+		Title: title,
+	}
+	categoryList, count, err := categoryService.FindManyByPage("article.id, title,`desc`,comment_count,read_count, content, img, article.created_at,article.updated_at", query, pageIndex, pageSize)
+	if err != nil {
+		return nil, 0, err
+	}
+	return categoryList, count, nil
 }

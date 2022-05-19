@@ -16,10 +16,10 @@ type Res struct {
 
 // ResData 返回值data
 type ResData struct {
-	PageIndex int64       `json:"pageIndex"` // 当前页面
-	PageSize  int64       `json:"pageSize"`  // 当前页大小
-	Total     int64       `json:"total"`     // 总条数
-	Data      interface{} `json:"data"`      // 数据
+	Page     int64       `json:"page"`     // 当前页面
+	PageSize int64       `json:"pageSize"` // 当前页大小
+	Total    int64       `json:"total"`    // 总条数
+	Data     interface{} `json:"data"`     // 数据
 }
 
 // NewRes 新建api response
@@ -41,12 +41,12 @@ func DefaultRes() *Res {
 }
 
 // NewResData return new resData
-func NewResData(PageIndex, pageSize, total int64, resData interface{}) ResData {
+func NewResData(Page, pageSize, total int64, resData interface{}) ResData {
 	return ResData{
-		PageIndex: PageIndex,
-		PageSize:  pageSize,
-		Total:     total,
-		Data:      resData,
+		Page:     Page,
+		PageSize: pageSize,
+		Total:    total,
+		Data:     resData,
 	}
 }
 

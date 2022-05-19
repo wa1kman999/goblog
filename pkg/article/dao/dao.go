@@ -17,7 +17,7 @@ type Article interface {
 	// FindOne 查询一个
 	FindOne(fields string, query interface{}, args ...interface{}) (model.Article, error)
 	// FindManyByPage 分页查询
-	FindManyByPage(fields string, query *model.Article, pageIndex, pageSize int64) ([]*model.Article, int64, error)
+	FindManyByPage(fields string, query *model.Article, page, pageSize int64) ([]*model.Article, int64, error)
 	// Update 更新操作
 	Update(value map[string]interface{}, query interface{}, args ...interface{}) error
 	// Delete 删除
@@ -28,7 +28,7 @@ type ArticleEntity struct {
 	dao *gorm.DB
 }
 
-func NewUserEntity() (Article, error) {
+func NewArticleEntity() (Article, error) {
 	return &ArticleEntity{
 		dao: global.GBMysql,
 	}, nil
@@ -50,31 +50,28 @@ func (entity *ArticleEntity) FindOne(fields string, query interface{}, args ...i
 }
 
 // FindManyByPage 分页查询
-func (entity *ArticleEntity) FindManyByPage(fields string, query *model.Article, pageIndex, pageSize int64) ([]*model.Article, int64, error) {
+func (entity *ArticleEntity) FindManyByPage(fields string, query *model.Article, page, pageSize int64) ([]*model.Article, int64, error) {
 	var articles []*model.Article
 	var count int64
 	if pageSize == 0 {
 		pageSize = defaultLimit
 	}
-	if pageIndex == 0 {
-		pageIndex = 1
+	if page == 0 {
+		page = 1
 	}
 	if pageSize > maxLimit {
 		pageSize = maxLimit
 	}
-	offset := (pageIndex - 1) * pageSize
+	offset := (page - 1) * pageSize
 	db := entity.dao.Select(fields)
-	//if query.Username != "" {
-	//	db = db.Where("username LIKE ?", "%"+query.Username+"%")
-	//}
-	//if query.Role != 0 {
-	//	db = db.Where("role = ?", query.Role)
-	//}
+	if query.Title != "" {
+		db = db.Where("title LIKE ?", "%"+query.Title+"%")
+	}
 	err := db.Model(&model.Article{}).Count(&count).Error
 	if err != nil {
 		return nil, 0, err
 	}
-	err = db.Offset(int(offset)).Limit(int(pageSize)).Find(&articles).Error
+	err = db.Order("article.created_at DESC").Joins("Category").Offset(int(offset)).Limit(int(pageSize)).Find(&articles).Error
 	if err != nil {
 		return nil, 0, err
 	}

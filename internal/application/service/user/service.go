@@ -10,7 +10,7 @@ type IUserService interface {
 	Login(param *model.User) (model.User, error)
 	CreateUser(param model.User) error
 	GetUserInfo(id int) (model.User, error)
-	GetUserList(userName string, role int, pageIndex, pageSize int64) ([]*model.User, int64, error)
+	GetUserList(userName string, role int, page, pageSize int64) ([]*model.User, int64, error)
 	EditUser(param model.User) error
 	DeleteUser(id int) error
 }
@@ -61,13 +61,13 @@ func (app *ServiceUser) GetUserInfo(id int) (model.User, error) {
 }
 
 // GetUserList 获取user列表
-func (app *ServiceUser) GetUserList(userName string, role int, pageIndex, pageSize int64) ([]*model.User, int64, error) {
+func (app *ServiceUser) GetUserList(userName string, role int, page, pageSize int64) ([]*model.User, int64, error) {
 	userService := service.NewDomainUserService()
 	query := &model.User{
 		Username: userName,
 		Role:     role,
 	}
-	userList, count, err := userService.FindManyByPage("id, username, role", query, pageIndex, pageSize)
+	userList, count, err := userService.FindManyByPage("id, username, role", query, page, pageSize)
 	if err != nil {
 		return nil, 0, err
 	}

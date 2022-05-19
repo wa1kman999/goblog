@@ -11,7 +11,7 @@ type DomainUser interface {
 	// FindOne 查询一个
 	FindOne(fields string, query interface{}, args ...interface{}) (model.User, error)
 	// FindManyByPage 分页查询
-	FindManyByPage(fields string, query *model.User, pageIndex, pageSize int64) ([]*model.User, int64, error)
+	FindManyByPage(fields string, query *model.User, page, pageSize int64) ([]*model.User, int64, error)
 	// Update 更新
 	Update(value map[string]interface{}, query interface{}, args ...interface{}) error
 	// Delete 删除
@@ -45,12 +45,12 @@ func (domain *DomainUserService) FindOne(fields string, query interface{}, args 
 }
 
 // FindManyByPage 分页查询
-func (domain *DomainUserService) FindManyByPage(fields string, query *model.User, pageIndex, pageSize int64) ([]*model.User, int64, error) {
+func (domain *DomainUserService) FindManyByPage(fields string, query *model.User, page, pageSize int64) ([]*model.User, int64, error) {
 	entity, err := dao.NewUserEntity()
 	if err != nil {
 		return nil, 0, err
 	}
-	return entity.FindManyByPage(fields, query, pageIndex, pageSize)
+	return entity.FindManyByPage(fields, query, page, pageSize)
 }
 
 // Update 更新

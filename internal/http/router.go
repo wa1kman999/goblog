@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	articleController "github.com/wa1kman999/goblog/internal/controller/article"
+	categoryController "github.com/wa1kman999/goblog/internal/controller/category"
 	systemController "github.com/wa1kman999/goblog/internal/controller/system"
 	userController "github.com/wa1kman999/goblog/internal/controller/user"
 )
@@ -49,6 +50,16 @@ func initRouter(router *gin.Engine) error {
 		article.POST("", articleController.CreateArticle)
 		// 上传图片到本地
 		article.POST("/img", articleController.Upload)
+		// 文章列表
+		article.POST("/list", articleController.GetArticleList)
+	}
+	// 分类相关接口
+	category := router.Group(v1prefix + "/category")
+	{
+		// 新建分类
+		category.POST("", categoryController.CreateCategory)
+		// 获取分类列表
+		category.POST("/list", categoryController.GetCategoryList)
 	}
 
 	system := router.Group(v1prefix + "/system")

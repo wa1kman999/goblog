@@ -9,10 +9,10 @@ import (
 )
 
 type Param struct {
-	UserName  string `json:"userName"`
-	Role      int    `json:"role"`
-	PageIndex int64  `json:"pageIndex"`
-	PageSize  int64  `json:"pageSize"`
+	UserName string `json:"userName"`
+	Role     int    `json:"role"`
+	Page     int64  `json:"page"`
+	PageSize int64  `json:"pageSize"`
 }
 
 // GetUserList 查询用户列表
@@ -24,7 +24,7 @@ func GetUserList(ctx *gin.Context) {
 		vs.SendParamParseError(ctx)
 		return
 	}
-	userList, count, err := userService.NewUserService().GetUserList(r.UserName, r.Role, r.PageIndex, r.PageSize)
+	userList, count, err := userService.NewUserService().GetUserList(r.UserName, r.Role, r.Page, r.PageSize)
 	if err != nil {
 		logger.Errorf(ctx.Request.Context(), err, "%v查询用户列表失败", ctx.Request.RequestURI)
 		vs.SendBad(ctx, err)
@@ -39,6 +39,6 @@ func GetUserList(ctx *gin.Context) {
 		}
 		userRespList = append(userRespList, temp)
 	}
-	res := vs.NewResData(r.PageIndex, r.PageSize, count, userRespList)
+	res := vs.NewResData(r.Page, r.PageSize, count, userRespList)
 	vs.SendOkData(ctx, res)
 }

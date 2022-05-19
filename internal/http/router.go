@@ -50,6 +50,8 @@ func initRouter(router *gin.Engine) error {
 		article.POST("", articleController.CreateArticle)
 		// 上传图片到本地
 		article.POST("/img", articleController.Upload)
+		// 获取图片
+		article.GET("/img/:path", articleController.GetImg)
 		// 文章列表
 		article.POST("/list", articleController.GetArticleList)
 	}

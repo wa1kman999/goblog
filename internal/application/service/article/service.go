@@ -15,6 +15,7 @@ import (
 type IArticleService interface {
 	CreateArticle(param model.Article) error
 	Upload(file *multipart.FileHeader) (string, error)
+	GetImg(path string) (*os.File, error)
 	GetArticleList(title string, pageIndex, pageSize int64) ([]*model.Article, int64, error)
 }
 
@@ -66,7 +67,16 @@ func (app *ServiceArticle) Upload(file *multipart.FileHeader) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return p, nil
+	return filename, nil
+}
+
+// GetImg 获取图片
+func (app *ServiceArticle) GetImg(path string) (*os.File, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	return f, nil
 }
 
 // GetArticleList 获取文章列表

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"net/http"
 	"os"
 	"os/signal"
@@ -19,7 +20,7 @@ var (
 
 func main() {
 	g.Go(func() error {
-		if err := httpServer.Serve(); err != nil && err != http.ErrServerClosed {
+		if err := httpServer.Serve(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			panic(err)
 		}
 		return nil

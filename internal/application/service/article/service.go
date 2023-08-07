@@ -17,6 +17,7 @@ type IArticleService interface {
 	Upload(file *multipart.FileHeader) (string, error)
 	GetImg(path string) (*os.File, error)
 	GetArticleList(title string, pageIndex, pageSize int64) ([]*model.Article, int64, error)
+	DeleteArticle(id int) error
 }
 
 type ServiceArticle struct{}
@@ -90,4 +91,10 @@ func (app *ServiceArticle) GetArticleList(title string, pageIndex, pageSize int6
 		return nil, 0, err
 	}
 	return categoryList, count, nil
+}
+
+// DeleteArticle 删除文章
+func (app *ServiceArticle) DeleteArticle(id int) error {
+	categoryService := service.NewDomainArticleService()
+	return categoryService.Delete("id = ?", id)
 }

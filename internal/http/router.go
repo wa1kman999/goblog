@@ -54,6 +54,8 @@ func initRouter(router *gin.Engine) error {
 		article.GET("/img/:path", articleController.GetImg)
 		// 文章列表
 		article.POST("/list", articleController.GetArticleList)
+		// 删除文章
+		article.DELETE("/:id", articleController.DeleteArticle)
 	}
 	// 分类相关接口
 	category := router.Group(v1prefix + "/category")
@@ -62,6 +64,8 @@ func initRouter(router *gin.Engine) error {
 		category.POST("", categoryController.CreateCategory)
 		// 获取分类列表
 		category.POST("/list", categoryController.GetCategoryList)
+		// 获取分类测试
+		category.POST("/test", categoryController.Test)
 	}
 
 	system := router.Group(v1prefix + "/system")

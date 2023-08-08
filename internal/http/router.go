@@ -56,6 +56,8 @@ func initRouter(router *gin.Engine) error {
 		article.POST("/list", articleController.GetArticleList)
 		// 删除文章
 		article.DELETE("/:id", articleController.DeleteArticle)
+		// 查询单个文章
+		article.GET("/:id", articleController.GetArticle)
 	}
 	// 分类相关接口
 	category := router.Group(v1prefix + "/category")

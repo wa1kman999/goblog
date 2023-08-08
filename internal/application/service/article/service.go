@@ -9,7 +9,6 @@ import (
 	"os"
 	"path"
 	"strings"
-	"time"
 )
 
 type IArticleService interface {
@@ -18,6 +17,7 @@ type IArticleService interface {
 	GetImg(path string) (*os.File, error)
 	GetArticleList(title string, pageIndex, pageSize int64) ([]*model.Article, int64, error)
 	DeleteArticle(id int) error
+	GetArticle(id int) (model.Article, error)
 }
 
 type ServiceArticle struct{}
@@ -43,7 +43,8 @@ func (app *ServiceArticle) Upload(file *multipart.FileHeader) (string, error) {
 	name := strings.TrimSuffix(file.Filename, ext)
 	name = utils.MD5V([]byte(name))
 	// 拼接新文件名
-	filename := name + "_" + time.Now().Format("20060102150405") + ext
+	//filename := name + "_" + time.Now().Format("20060102150405") + ext
+	filename := name + ext
 	// 尝试创建此路径
 	err := os.MkdirAll("fileDir", os.ModePerm)
 	if err != nil {
@@ -97,4 +98,10 @@ func (app *ServiceArticle) GetArticleList(title string, pageIndex, pageSize int6
 func (app *ServiceArticle) DeleteArticle(id int) error {
 	categoryService := service.NewDomainArticleService()
 	return categoryService.Delete("id = ?", id)
+}
+
+// GetArticle 获取单个文章
+func (app *ServiceArticle) GetArticle(id int) (model.Article, error) {
+	categoryService := service.NewDomainArticleService()
+	return categoryService.FindOne("id,title,`desc`,cid,content,img", "id = ?", id)
 }
